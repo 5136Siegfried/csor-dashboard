@@ -151,3 +151,4 @@ jobs:
             curl -sf http://localhost:3000/health \
               && echo "Production deployee — https://maraude.5136.fr — $(date)" \
               || (echo "Healthcheck prod echoue" && exit 1)
+#TRIGGER 1
