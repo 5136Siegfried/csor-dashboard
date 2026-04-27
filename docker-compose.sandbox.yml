@@ -1,0 +1,16 @@
+services:
+  app:
+    image: ghcr.io/${GITHUB_REPOSITORY:-5136Siegfried/maraude}:sandbox
+    container_name: maraude-sandbox
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3001"
+    environment:
+      - PORT=3001
+      - AUTH_DISABLED=true       # pas de JWT en sandbox
+      - DATA_FILE=/app/data/data.json
+    volumes:
+      - maraude_sandbox_data:/app/data
+
+volumes:
+  maraude_sandbox_data:
