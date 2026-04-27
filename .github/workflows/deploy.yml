@@ -1,0 +1,181 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main, sandbox]
+  pull_request:
+    branches: [main, sandbox]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# JOB 1 — Lint
+# Toujours exécuté : PR et push
+# ─────────────────────────────────────────────────────────────────────────────
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Vérification syntaxe
+        run: node --check server.js
+
+# ─────────────────────────────────────────────────────────────────────────────
+# JOB 2 — Build & push image Docker
+# Exécuté sur lint success ; push uniquement sur push (pas PR)
+# ─────────────────────────────────────────────────────────────────────────────
+  build:
+    name: Build image
+    needs: lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      sha_tag: ${{ steps.meta.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Métadonnées image
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=sha-,format=short
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=sandbox,enable=${{ github.ref == 'refs/heads/sandbox' }}
+
+      - name: Build (+ push si push event)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ github.event_name == 'push' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          cache-to: type=inline
+
+# ─────────────────────────────────────────────────────────────────────────────
+# JOB 3a — Deploy sandbox
+# Déclenché uniquement sur push dans la branche sandbox
+# ─────────────────────────────────────────────────────────────────────────────
+  deploy-sandbox:
+    name: Deploy › sandbox
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/sandbox' && github.event_name == 'push'
+    environment: sandbox
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copier docker-compose.sandbox.yml
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: docker-compose.sandbox.yml
+          target: /opt/maraude-sandbox
+
+      - name: Déployer sandbox
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/maraude-sandbox
+
+            # Sandbox : pas de JWT_SECRET ni EDITOR_PASSWORD
+            # AUTH_DISABLED=true désactive la vérification dans server.js
+            cat > .env <<EOF
+            GITHUB_REPOSITORY=${{ github.repository }}
+            PORT=3001
+            AUTH_DISABLED=true
+            EOF
+
+            echo "${{ secrets.GITHUB_TOKEN }}" | \
+              docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            docker compose -f docker-compose.sandbox.yml pull
+            docker compose -f docker-compose.sandbox.yml up -d --remove-orphans
+
+            sleep 5
+            curl -sf http://localhost:3001/health \
+              && echo "✓ Sandbox déployée — https://demo.maraude.5136.fr — $(date)" \
+              || (echo "✗ Healthcheck sandbox échoué" && exit 1)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# JOB 3b — Deploy production
+# Déclenché uniquement sur push dans main
+# ─────────────────────────────────────────────────────────────────────────────
+  deploy-prod:
+    name: Deploy › production
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production        # protection de branche + approbation possible
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copier docker-compose.prod.yml
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: docker-compose.prod.yml
+          target: /opt/maraude-prod
+
+      - name: Déployer production
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/maraude-prod
+
+            cat > .env <<EOF
+            GITHUB_REPOSITORY=${{ github.repository }}
+            PORT=3000
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            EDITOR_PASSWORD=${{ secrets.EDITOR_PASSWORD }}
+            EOF
+
+            echo "${{ secrets.GITHUB_TOKEN }}" | \
+              docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+
+            sleep 5
+            curl -sf http://localhost:3000/health \
+              && echo "✓ Production déployée — https://maraude.5136.fr — $(date)" \
+              || (echo "✗ Healthcheck prod échoué" && exit 1)
