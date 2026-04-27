@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/${GITHUB_REPOSITORY:-5136Siegfried/maraude}:latest
+    image: ghcr.io/${GITHUB_REPOSITORY:-5136siegfried/maraude}:latest
     container_name: maraude
     restart: unless-stopped
     ports:
