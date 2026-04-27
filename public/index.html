@@ -17,15 +17,16 @@
   body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
   .layout { display:flex; min-height:100vh; }
 
-  /* ── Sidebar ── */
   .sidebar {
     width:220px; min-width:220px; background:var(--bg2);
     border-right:1px solid var(--border); display:flex; flex-direction:column;
-    padding:2rem 0; position:fixed; top:0; left:0; height:100vh; z-index:10;
+    padding:2rem 0; position:fixed; top:0; left:0; height:100vh; z-index:10; overflow-y:auto;
   }
   .logo { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; color:var(--accent);
     padding:0 1.5rem 2rem; letter-spacing:-.02em; border-bottom:1px solid var(--border); margin-bottom:1.5rem; }
   .logo span { display:block; font-size:11px; font-weight:400; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; margin-top:4px; }
+  .nav-section { font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);
+    padding:.5rem 1.5rem .25rem; margin-top:.5rem; }
   .nav-item { display:flex; align-items:center; gap:10px; padding:.6rem 1.5rem; font-size:13px;
     color:var(--muted); cursor:pointer; border-left:2px solid transparent; transition:all .15s; }
   .nav-item:hover { color:var(--text); background:rgba(255,255,255,.03); }
@@ -35,7 +36,6 @@
   .auth-status { font-size:11px; color:var(--muted); margin-bottom:.5rem; }
   .auth-status.editor { color:var(--green); }
 
-  /* ── Main ── */
   .main { margin-left:220px; padding:2rem 2.5rem; flex:1; max-width:1200px; }
   .page { display:none; }
   .page.active { display:block; }
@@ -47,7 +47,7 @@
   .section-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:600; color:var(--muted);
     letter-spacing:.06em; text-transform:uppercase; margin-bottom:1rem; }
 
-  /* ── Stats ── */
+  /* Stats */
   .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem; }
   .stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:1.25rem 1.5rem; position:relative; overflow:hidden; }
   .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--c,var(--accent)); }
@@ -55,12 +55,15 @@
   .stat-value { font-family:'DM Mono',monospace; font-size:32px; font-weight:500; line-height:1; }
   .stat-delta { font-size:12px; color:var(--muted); margin-top:6px; }
 
-  /* ── Pipeline ── */
-  .pipeline { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem; }
+  /* Pipeline */
+  .pipeline { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
   .pipeline-col { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:1rem; min-height:300px; }
+  .pipeline-col.drag-over { border-color:var(--accent); background:rgba(232,145,58,.05); }
   .pipeline-col-header { font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin-bottom:1rem; display:flex; align-items:center; justify-content:space-between; }
   .col-count { background:var(--bg3); border-radius:20px; padding:1px 8px; font-family:'DM Mono',monospace; font-size:11px; }
-  .pipeline-card { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:.7rem .9rem; margin-bottom:.6rem; cursor:pointer; transition:border-color .15s; }
+  .pipeline-card { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:.7rem .9rem; margin-bottom:.6rem; cursor:grab; transition:border-color .15s, opacity .15s; user-select:none; }
+  .pipeline-card:active { cursor:grabbing; }
+  .pipeline-card.dragging { opacity:.4; }
   .pipeline-card:hover { border-color:var(--border2); }
   .p-name { font-size:13px; font-weight:500; }
   .p-meta { font-size:11px; color:var(--muted); margin-top:3px; }
@@ -74,7 +77,7 @@
   .add-card-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(232,145,58,.05); }
   .add-card-btn:disabled { opacity:.3; cursor:default; }
 
-  /* ── Axes ── */
+  /* Axes */
   .axes-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2rem; }
   .axe-card { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:1.25rem 1.5rem; }
   .axe-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1rem; }
@@ -90,12 +93,15 @@
   .axe-item::before { content:''; width:5px; height:5px; border-radius:50%; background:var(--border2); flex-shrink:0; }
   .axe-item.done::before { background:var(--green); }
 
-  /* ── Actions ── */
+  /* Actions */
   .actions-list { background:var(--bg2); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
   .action-row { display:flex; align-items:center; gap:1rem; padding:.9rem 1.25rem; border-bottom:1px solid var(--border); transition:background .1s; }
-  .action-row.editable { cursor:pointer; }
-  .action-row.editable:hover { background:rgba(255,255,255,.02); }
+  .action-row.draggable { cursor:grab; }
+  .action-row.draggable:hover { background:rgba(255,255,255,.02); }
+  .action-row.dragging { opacity:.4; cursor:grabbing; }
+  .action-row.drag-over { border-top:2px solid var(--accent); }
   .action-row:last-child { border-bottom:none; }
+  .drag-handle { color:var(--border2); font-size:14px; cursor:grab; flex-shrink:0; }
   .action-check { width:16px; height:16px; border:1px solid var(--border2); border-radius:4px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
   .action-check.done { background:var(--green); border-color:var(--green); }
   .action-check.done::after { content:'✓'; font-size:10px; color:white; }
@@ -107,19 +113,19 @@
   .prio-med { background:rgba(232,145,58,.15); color:#e8913a; }
   .prio-low { background:rgba(76,175,125,.15); color:#4caf7d; }
 
-  /* ── Partenaires ── */
+  /* Partenaires */
   .partners-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
   .partner-card { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:1.25rem 1.5rem; }
   .partner-name { font-family:'Syne',sans-serif; font-size:14px; font-weight:600; margin-bottom:4px; }
   .partner-type { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:1rem; }
-  .partner-detail { font-size:12px; color:var(--muted); margin-bottom:5px; display:flex; gap:8px; }
+  .partner-detail { font-size:12px; color:var(--muted); margin-bottom:5px; }
   .partner-detail strong { color:var(--text); font-weight:500; }
   .partner-status { display:inline-block; margin-top:.75rem; font-size:11px; padding:3px 10px; border-radius:20px; }
   .status-actif { background:rgba(76,175,125,.15); color:#4caf7d; }
   .status-prospect { background:rgba(91,156,246,.15); color:#5b9cf6; }
   .status-nego { background:rgba(232,145,58,.15); color:#e8913a; }
 
-  /* ── Formation ── */
+  /* Formation */
   .formation-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
   .module-card { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:1.25rem 1.5rem; }
   .module-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:.75rem; }
@@ -127,12 +133,44 @@
   .module-badge { font-family:'DM Mono',monospace; font-size:11px; color:var(--accent); background:rgba(232,145,58,.12); padding:3px 8px; border-radius:4px; }
   .module-desc { font-size:12px; color:var(--muted); margin-bottom:.75rem; line-height:1.6; }
 
-  /* ── Modals ── */
+  /* Finances — notes de frais */
+  .frais-header { display:grid; grid-template-columns:100px 1fr 120px 80px 90px 32px; gap:.75rem; padding:.5rem 1.25rem;
+    font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);
+    border-bottom:1px solid var(--border); }
+  .frais-row { display:grid; grid-template-columns:100px 1fr 120px 80px 90px 32px; gap:.75rem;
+    align-items:center; padding:.75rem 1.25rem; border-bottom:1px solid var(--border);
+    transition:background .1s; cursor:grab; }
+  .frais-row:last-child { border-bottom:none; }
+  .frais-row:hover { background:rgba(255,255,255,.02); }
+  .frais-row.dragging { opacity:.4; }
+  .frais-row.drag-over { border-top:2px solid var(--accent); }
+  .frais-date { font-family:'DM Mono',monospace; font-size:12px; color:var(--muted); }
+  .frais-desc { font-size:13px; }
+  .frais-cat { font-size:11px; }
+  .frais-montant { font-family:'DM Mono',monospace; font-size:13px; font-weight:500; color:var(--accent); }
+  .frais-statut span { font-size:10px; padding:2px 8px; border-radius:20px; }
+  .st-attente { background:rgba(232,145,58,.15); color:#e8913a; }
+  .st-valide { background:rgba(91,156,246,.15); color:#5b9cf6; }
+  .st-rembourse { background:rgba(76,175,125,.15); color:#4caf7d; }
+  .del-btn { background:transparent; border:none; color:var(--muted); cursor:pointer; font-size:14px; transition:color .15s; }
+  .del-btn:hover { color:var(--red); }
+
+  /* Comptes */
+  .comptes-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:2rem; }
+  .compte-card { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:1.25rem 1.5rem; }
+  .compte-exercice { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); margin-bottom:.25rem; }
+  .compte-label { font-family:'Syne',sans-serif; font-size:14px; font-weight:600; margin-bottom:.75rem; }
+  .compte-montant { font-family:'DM Mono',monospace; font-size:28px; font-weight:500; color:var(--accent); margin-bottom:.5rem; }
+  .compte-detail { font-size:12px; color:var(--muted); margin-bottom:4px; }
+  .compte-detail strong { color:var(--text); }
+
+  /* Modals */
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:100; align-items:center; justify-content:center; }
   .modal-overlay.open { display:flex; }
-  .modal { background:var(--bg2); border:1px solid var(--border2); border-radius:14px; padding:2rem; width:440px; max-width:95vw; }
+  .modal { background:var(--bg2); border:1px solid var(--border2); border-radius:14px; padding:2rem; width:460px; max-width:95vw; max-height:90vh; overflow-y:auto; }
   .modal-title { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; margin-bottom:1.5rem; }
   .form-group { margin-bottom:1rem; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
   .form-group label { display:block; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:6px; }
   .form-group input, .form-group select {
     width:100%; background:var(--bg3); border:1px solid var(--border2);
@@ -145,24 +183,18 @@
   .form-error.visible { display:block; }
   .modal-actions { display:flex; gap:.75rem; justify-content:flex-end; margin-top:1.5rem; }
 
-  /* ── Buttons ── */
   .btn { padding:.55rem 1.25rem; border-radius:8px; font-size:13px; font-family:'Inter',sans-serif; cursor:pointer; border:none; font-weight:500; transition:all .15s; }
   .btn-ghost { background:transparent; border:1px solid var(--border2); color:var(--muted); }
   .btn-ghost:hover { color:var(--text); }
   .btn-primary { background:var(--accent); color:#1a0f00; }
   .btn-primary:hover { background:var(--accent2); }
-  .btn-danger { background:rgba(224,92,92,.15); color:var(--red); border:1px solid rgba(224,92,92,.3); }
-  .btn-danger:hover { background:rgba(224,92,92,.25); }
 
-  /* ── Toast ── */
   #toast { position:fixed; bottom:2rem; right:2rem; background:var(--bg2); border:1px solid var(--border2);
-    border-radius:10px; padding:.75rem 1.25rem; font-size:13px; color:var(--text);
-    z-index:999; opacity:0; transform:translateY(8px); transition:all .3s; pointer-events:none; }
+    border-radius:10px; padding:.75rem 1.25rem; font-size:13px; z-index:999;
+    opacity:0; transform:translateY(8px); transition:all .3s; pointer-events:none; }
   #toast.show { opacity:1; transform:translateY(0); }
   #toast.error { border-color:rgba(224,92,92,.4); color:var(--red); }
 
-  /* ── Auth badge ── */
-  .lock-icon { font-size:13px; }
   ::-webkit-scrollbar { width:6px; }
   ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
 </style>
@@ -170,22 +202,23 @@
 <body>
 <div class="layout">
   <nav class="sidebar">
-    <div class="logo">Maraude<span>Tableau de bord</span></div>
-    <div class="nav-item active" data-page="dashboard">
-      <span class="nav-icon">◈</span> Vue d'ensemble
-    </div>
-    <div class="nav-item" data-page="pipeline">
-      <span class="nav-icon">⊞</span> Pipeline bénévoles
-    </div>
-    <div class="nav-item" data-page="formation">
-      <span class="nav-icon">◎</span> Formation
-    </div>
-    <div class="nav-item" data-page="partenaires">
-      <span class="nav-icon">◈</span> Partenaires
-    </div>
-    <div class="nav-item" data-page="actions">
-      <span class="nav-icon">✓</span> Actions
-    </div>
+    <div class="logo">CSOR<span>Tableau de bord</span></div>
+
+    <div class="nav-section">Pilotage</div>
+    <div class="nav-item active" data-page="dashboard"><span class="nav-icon">◈</span> Vue d'ensemble</div>
+    <div class="nav-item" data-page="actions"><span class="nav-icon">✓</span> Actions</div>
+
+    <div class="nav-section">Bénévoles</div>
+    <div class="nav-item" data-page="pipeline"><span class="nav-icon">⊞</span> Pipeline</div>
+    <div class="nav-item" data-page="formation"><span class="nav-icon">◎</span> Formation</div>
+
+    <div class="nav-section">Terrain</div>
+    <div class="nav-item" data-page="partenaires"><span class="nav-icon">◈</span> Partenaires</div>
+
+    <div class="nav-section">Finance</div>
+    <div class="nav-item" data-page="frais"><span class="nav-icon">€</span> Notes de frais</div>
+    <div class="nav-item" data-page="comptes"><span class="nav-icon">⊟</span> Dépôt des comptes</div>
+
     <div class="sidebar-footer">
       <div class="auth-status" id="auth-status">🔒 Mode lecture</div>
       <button class="btn btn-ghost" id="auth-btn" style="width:100%;font-size:12px">Se connecter</button>
@@ -193,6 +226,7 @@
   </nav>
 
   <main class="main">
+
     <!-- DASHBOARD -->
     <div id="page-dashboard" class="page active">
       <div class="page-header">
@@ -200,10 +234,10 @@
         <div class="page-sub" id="last-update">Chargement…</div>
       </div>
       <div class="stats-grid">
-        <div class="stat-card" style="--c:#e8913a"><div class="stat-label">Bénévoles actifs</div><div class="stat-value" id="stat-actifs">–</div><div class="stat-delta">En maraude ce mois</div></div>
-        <div class="stat-card" style="--c:#5b9cf6"><div class="stat-label">En formation</div><div class="stat-value" id="stat-formation">–</div><div class="stat-delta">Modules en cours</div></div>
-        <div class="stat-card" style="--c:#4caf7d"><div class="stat-label">Points d'accueil</div><div class="stat-value" id="stat-points">–</div><div class="stat-delta">Via partenaires actifs</div></div>
-        <div class="stat-card" style="--c:#e05c5c"><div class="stat-label">Pipeline en cours</div><div class="stat-value" id="stat-prospects">–</div><div class="stat-delta">Hors actifs</div></div>
+        <div class="stat-card" style="--c:#e8913a"><div class="stat-label">Bénévoles actifs</div><div class="stat-value" id="stat-actifs">–</div><div class="stat-delta">En maraude</div></div>
+        <div class="stat-card" style="--c:#5b9cf6"><div class="stat-label">En formation</div><div class="stat-value" id="stat-formation">–</div></div>
+        <div class="stat-card" style="--c:#4caf7d"><div class="stat-label">Points d'accueil</div><div class="stat-value" id="stat-points">–</div></div>
+        <div class="stat-card" style="--c:#e05c5c"><div class="stat-label">Frais en attente</div><div class="stat-value" id="stat-frais">–</div><div class="stat-delta" id="stat-frais-montant"></div></div>
       </div>
       <div class="section-title">Axes stratégiques</div>
       <div class="axes-grid" id="axes-grid"></div>
@@ -213,9 +247,9 @@
     <div id="page-pipeline" class="page">
       <div class="page-header">
         <div class="flex-row">
-          <div><div class="page-title">Pipeline bénévoles</div><div class="page-sub">De prospect à actif</div></div>
+          <div><div class="page-title">Pipeline bénévoles</div><div class="page-sub">Glisser une carte pour changer le statut</div></div>
           <div class="spacer"></div>
-          <button class="btn btn-primary editor-only" id="btn-add-benevole" style="display:none" onclick="openModal('benevole')">+ Ajouter</button>
+          <button class="btn btn-primary editor-only" style="display:none" onclick="openModal('benevole')">+ Ajouter</button>
         </div>
       </div>
       <div class="pipeline" id="pipeline-board"></div>
@@ -223,7 +257,7 @@
 
     <!-- FORMATION -->
     <div id="page-formation" class="page">
-      <div class="page-header"><div class="page-title">Formation</div><div class="page-sub">Modules et contenus pédagogiques</div></div>
+      <div class="page-header"><div class="page-title">Formation</div></div>
       <div class="formation-grid" id="formation-grid"></div>
     </div>
 
@@ -231,9 +265,9 @@
     <div id="page-partenaires" class="page">
       <div class="page-header">
         <div class="flex-row">
-          <div><div class="page-title">Partenaires</div><div class="page-sub">Associations hôtes et points d'accueil</div></div>
+          <div><div class="page-title">Partenaires</div></div>
           <div class="spacer"></div>
-          <button class="btn btn-primary editor-only" id="btn-add-partenaire" style="display:none" onclick="openModal('partenaire')">+ Ajouter</button>
+          <button class="btn btn-primary editor-only" style="display:none" onclick="openModal('partenaire')">+ Ajouter</button>
         </div>
       </div>
       <div class="partners-grid" id="partners-grid"></div>
@@ -243,13 +277,44 @@
     <div id="page-actions" class="page">
       <div class="page-header">
         <div class="flex-row">
-          <div><div class="page-title">Actions à mener</div><div class="page-sub">Suivi des tâches stratégiques</div></div>
+          <div><div class="page-title">Actions</div><div class="page-sub">Glisser pour réordonner</div></div>
           <div class="spacer"></div>
-          <button class="btn btn-primary editor-only" id="btn-add-action" style="display:none" onclick="openModal('action')">+ Ajouter</button>
+          <button class="btn btn-primary editor-only" style="display:none" onclick="openModal('action')">+ Ajouter</button>
         </div>
       </div>
       <div class="actions-list" id="actions-list"></div>
     </div>
+
+    <!-- NOTES DE FRAIS -->
+    <div id="page-frais" class="page">
+      <div class="page-header">
+        <div class="flex-row">
+          <div><div class="page-title">Notes de frais</div><div class="page-sub">Glisser pour réordonner</div></div>
+          <div class="spacer"></div>
+          <div id="frais-total" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted)"></div>
+          <button class="btn btn-primary editor-only" style="display:none" onclick="openModal('frais')">+ Ajouter</button>
+        </div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+        <div class="frais-header">
+          <div>Date</div><div>Description</div><div>Catégorie</div><div>Montant</div><div>Statut</div><div></div>
+        </div>
+        <div id="frais-list"></div>
+      </div>
+    </div>
+
+    <!-- DÉPÔT DES COMPTES -->
+    <div id="page-comptes" class="page">
+      <div class="page-header">
+        <div class="flex-row">
+          <div><div class="page-title">Dépôt des comptes</div><div class="page-sub">Suivi des exercices comptables</div></div>
+          <div class="spacer"></div>
+          <button class="btn btn-primary editor-only" style="display:none" onclick="openModal('compte')">+ Ajouter</button>
+        </div>
+      </div>
+      <div class="comptes-grid" id="comptes-grid"></div>
+    </div>
+
   </main>
 </div>
 
@@ -257,8 +322,7 @@
 <div class="modal-overlay" id="modal-login">
   <div class="modal">
     <div class="modal-title">Accès éditeur</div>
-    <div class="form-group">
-      <label>Mot de passe</label>
+    <div class="form-group"><label>Mot de passe</label>
       <input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <div class="form-error" id="login-error">Mot de passe incorrect.</div>
@@ -273,21 +337,23 @@
   <div class="modal">
     <div class="modal-title">Nouveau bénévole</div>
     <div class="form-group"><label>Nom complet</label><input type="text" id="b-nom" placeholder="Marie Dupont"></div>
-    <div class="form-group"><label>Profil</label>
-      <select id="b-profil">
-        <option value="sante">Étudiant santé / professionnel</option>
-        <option value="social">Travailleur social / psycho</option>
-        <option value="secours">Secouriste (PSC1+)</option>
-        <option value="autre">Grand public</option>
-      </select>
-    </div>
-    <div class="form-group"><label>Statut initial</label>
-      <select id="b-statut">
-        <option value="prospect">Prospect</option>
-        <option value="contacte">Contacté</option>
-        <option value="formation">En formation</option>
-        <option value="actif">Actif</option>
-      </select>
+    <div class="form-row">
+      <div class="form-group"><label>Profil</label>
+        <select id="b-profil">
+          <option value="sante">Étudiant santé</option>
+          <option value="social">Travailleur social</option>
+          <option value="secours">Secouriste</option>
+          <option value="autre">Grand public</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Statut</label>
+        <select id="b-statut">
+          <option value="prospect">Prospect</option>
+          <option value="contacte">Contacté</option>
+          <option value="formation">En formation</option>
+          <option value="actif">Actif</option>
+        </select>
+      </div>
     </div>
     <div class="form-group"><label>Note</label><input type="text" id="b-note" placeholder="Source, commentaire…"></div>
     <div class="modal-actions">
@@ -300,25 +366,27 @@
 <div class="modal-overlay" id="modal-partenaire">
   <div class="modal">
     <div class="modal-title">Nouveau partenaire</div>
-    <div class="form-group"><label>Nom</label><input type="text" id="p-nom" placeholder="Croix-Rouge locale"></div>
-    <div class="form-group"><label>Type</label>
-      <select id="p-type">
-        <option value="alimentaire">Distribution alimentaire</option>
-        <option value="hebergement">Hébergement / CHRS</option>
-        <option value="sante">Santé / soins</option>
-        <option value="sociale">Action sociale</option>
-        <option value="autre">Autre</option>
-      </select>
+    <div class="form-group"><label>Nom</label><input type="text" id="p-nom"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Type</label>
+        <select id="p-type">
+          <option value="alimentaire">Distribution alimentaire</option>
+          <option value="hebergement">Hébergement</option>
+          <option value="sante">Santé</option>
+          <option value="sociale">Action sociale</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Statut</label>
+        <select id="p-statut">
+          <option value="actif">Actif</option>
+          <option value="nego">En négociation</option>
+          <option value="prospect">Prospect</option>
+        </select>
+      </div>
     </div>
-    <div class="form-group"><label>Contact référent</label><input type="text" id="p-contact" placeholder="Nom, téléphone"></div>
-    <div class="form-group"><label>Fréquence d'accueil</label><input type="text" id="p-freq" placeholder="ex : 2e vendredi du mois"></div>
-    <div class="form-group"><label>Statut</label>
-      <select id="p-statut">
-        <option value="actif">Actif</option>
-        <option value="nego">En négociation</option>
-        <option value="prospect">Prospect</option>
-      </select>
-    </div>
+    <div class="form-group"><label>Contact</label><input type="text" id="p-contact"></div>
+    <div class="form-group"><label>Fréquence</label><input type="text" id="p-freq" placeholder="ex : 2e vendredi du mois"></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('partenaire')">Annuler</button>
       <button class="btn btn-primary" onclick="savePartenaire()">Enregistrer</button>
@@ -329,19 +397,85 @@
 <div class="modal-overlay" id="modal-action">
   <div class="modal">
     <div class="modal-title">Nouvelle action</div>
-    <div class="form-group"><label>Description</label><input type="text" id="a-text" placeholder="Contacter l'UFR de médecine…"></div>
-    <div class="form-group"><label>Priorité</label>
-      <select id="a-prio"><option value="high">Haute</option><option value="med">Moyenne</option><option value="low">Basse</option></select>
-    </div>
-    <div class="form-group"><label>Axe</label>
-      <select id="a-axe">
-        <option>Recrutement</option><option>Formation</option><option>Partenariats</option>
-        <option>Fidélisation</option><option>Communication</option>
-      </select>
+    <div class="form-group"><label>Description</label><input type="text" id="a-text"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Priorité</label>
+        <select id="a-prio"><option value="high">Haute</option><option value="med">Moyenne</option><option value="low">Basse</option></select>
+      </div>
+      <div class="form-group"><label>Axe</label>
+        <select id="a-axe">
+          <option>Recrutement</option><option>Formation</option><option>Partenariats</option>
+          <option>Fidélisation</option><option>Communication</option><option>Administratif</option>
+          <option>Financement</option><option>Matériel</option>
+        </select>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('action')">Annuler</button>
       <button class="btn btn-primary" onclick="saveAction()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-frais">
+  <div class="modal">
+    <div class="modal-title">Note de frais</div>
+    <div class="form-group"><label>Description</label><input type="text" id="f-desc" placeholder="Transport, matériel…"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Date</label><input type="date" id="f-date"></div>
+      <div class="form-group"><label>Montant (€)</label><input type="number" id="f-montant" placeholder="0.00" step="0.01"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Catégorie</label>
+        <select id="f-cat">
+          <option value="Transport">Transport</option>
+          <option value="Matériel">Matériel</option>
+          <option value="Restauration">Restauration</option>
+          <option value="Communication">Communication</option>
+          <option value="Formation">Formation</option>
+          <option value="Autre">Autre</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Statut</label>
+        <select id="f-statut">
+          <option value="attente">En attente</option>
+          <option value="valide">Validé</option>
+          <option value="rembourse">Remboursé</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Bénévole / Nom</label><input type="text" id="f-nom" placeholder="Prénom Nom"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('frais')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveFrais()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-compte">
+  <div class="modal">
+    <div class="modal-title">Dépôt des comptes</div>
+    <div class="form-row">
+      <div class="form-group"><label>Exercice</label><input type="text" id="c-exercice" placeholder="2024"></div>
+      <div class="form-group"><label>Date de clôture</label><input type="date" id="c-date"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Produits (€)</label><input type="number" id="c-produits" placeholder="0" step="0.01"></div>
+      <div class="form-group"><label>Charges (€)</label><input type="number" id="c-charges" placeholder="0" step="0.01"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Trésorerie (€)</label><input type="number" id="c-treso" placeholder="0" step="0.01"></div>
+      <div class="form-group"><label>Statut dépôt</label>
+        <select id="c-statut">
+          <option value="preparation">En préparation</option>
+          <option value="valide">Validé en AG</option>
+          <option value="depose">Déposé en préfecture</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('compte')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveCompte()">Enregistrer</button>
     </div>
   </div>
 </div>
@@ -352,6 +486,8 @@
 // ── State ────────────────────────────────────────────────────────────────────
 let data = null;
 let token = sessionStorage.getItem('maraude_token') || null;
+let dragSrcId = null;
+let dragSrcType = null;
 
 // ── API ──────────────────────────────────────────────────────────────────────
 async function api(method, path, body) {
@@ -363,21 +499,14 @@ async function api(method, path, body) {
 }
 
 async function loadData() {
-  try {
-    data = await api('GET', '/api/data');
-  } catch {
-    toast('Impossible de charger les données', true);
-  }
+  try { data = await api('GET', '/api/data'); }
+  catch { toast('Impossible de charger les données', true); }
 }
 
 async function saveData() {
   if (!token) return;
-  try {
-    await api('PUT', '/api/data', data);
-    toast('Sauvegardé');
-  } catch {
-    toast('Erreur de sauvegarde', true);
-  }
+  try { await api('PUT', '/api/data', data); toast('Sauvegardé'); }
+  catch { toast('Erreur de sauvegarde', true); }
 }
 
 // ── Auth ─────────────────────────────────────────────────────────────────────
@@ -393,38 +522,26 @@ async function doLogin() {
     sessionStorage.setItem('maraude_token', token);
     closeModal('login');
     document.getElementById('login-password').value = '';
-    updateAuthUI();
-    render();
-    toast('Mode éditeur activé');
-  } catch {
-    err.classList.add('visible');
-  }
+    updateAuthUI(); render(); toast('Mode éditeur activé');
+  } catch { err.classList.add('visible'); }
 }
 
 function logout() {
-  token = null;
-  sessionStorage.removeItem('maraude_token');
-  updateAuthUI();
-  render();
+  token = null; sessionStorage.removeItem('maraude_token');
+  updateAuthUI(); render();
 }
 
 function updateAuthUI() {
   const status = document.getElementById('auth-status');
   const btn = document.getElementById('auth-btn');
   if (isEditor()) {
-    status.textContent = '✎ Mode éditeur';
-    status.className = 'auth-status editor';
-    btn.textContent = 'Se déconnecter';
-    btn.onclick = logout;
+    status.textContent = '✎ Mode éditeur'; status.className = 'auth-status editor';
+    btn.textContent = 'Se déconnecter'; btn.onclick = logout;
   } else {
-    status.textContent = '🔒 Mode lecture';
-    status.className = 'auth-status';
-    btn.textContent = 'Se connecter';
-    btn.onclick = () => openModal('login');
+    status.textContent = '🔒 Mode lecture'; status.className = 'auth-status';
+    btn.textContent = 'Se connecter'; btn.onclick = () => openModal('login');
   }
-  document.querySelectorAll('.editor-only').forEach(el => {
-    el.style.display = isEditor() ? '' : 'none';
-  });
+  document.querySelectorAll('.editor-only').forEach(el => el.style.display = isEditor() ? '' : 'none');
 }
 
 // ── Navigation ───────────────────────────────────────────────────────────────
@@ -441,21 +558,20 @@ document.querySelectorAll('.nav-item[data-page]').forEach(el => {
 // ── Render ───────────────────────────────────────────────────────────────────
 function render() {
   if (!data) return;
-  renderStats();
-  renderAxes();
-  renderPipeline();
-  renderFormation();
-  renderPartenaires();
-  renderActions();
+  renderStats(); renderAxes(); renderPipeline(); renderFormation();
+  renderPartenaires(); renderActions(); renderFrais(); renderComptes();
   document.getElementById('last-update').textContent =
-    'Mise à jour : ' + new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
 }
 
 function renderStats() {
-  document.getElementById('stat-actifs').textContent    = data.benevoles.filter(b => b.statut==='actif').length;
-  document.getElementById('stat-formation').textContent = data.benevoles.filter(b => b.statut==='formation').length;
-  document.getElementById('stat-points').textContent    = data.partenaires.filter(p => p.statut==='actif').length;
-  document.getElementById('stat-prospects').textContent = data.benevoles.filter(b => b.statut!=='actif').length;
+  document.getElementById('stat-actifs').textContent    = data.benevoles.filter(b=>b.statut==='actif').length;
+  document.getElementById('stat-formation').textContent = data.benevoles.filter(b=>b.statut==='formation').length;
+  document.getElementById('stat-points').textContent    = data.partenaires.filter(p=>p.statut==='actif').length;
+  const attente = (data.frais||[]).filter(f=>f.statut==='attente');
+  document.getElementById('stat-frais').textContent = attente.length;
+  const total = attente.reduce((s,f)=>s+parseFloat(f.montant||0),0);
+  document.getElementById('stat-frais-montant').textContent = total > 0 ? total.toFixed(2)+' €' : '';
 }
 
 const profilLabel = { sante:'Santé', social:'Social', secours:'Secours', autre:'Autre' };
@@ -464,47 +580,40 @@ const prioLabel   = { high:'Haute', med:'Moyenne', low:'Basse' };
 const prioClass   = { high:'prio-high', med:'prio-med', low:'prio-low' };
 
 function renderAxes() {
-  document.getElementById('axes-grid').innerHTML = data.axes.map((axe, ai) => {
-    const done  = axe.items.filter(i => i.done).length;
-    const total = axe.items.length;
-    const pct   = total ? Math.round((done / total) * 100) : 0;
-    return `
-    <div class="axe-card">
-      <div class="axe-header">
-        <div class="axe-title">${axe.titre}</div>
-        <div class="axe-pct">${pct}%</div>
-      </div>
+  document.getElementById('axes-grid').innerHTML = (data.axes||[]).map((axe,ai) => {
+    const done = axe.items.filter(i=>i.done).length;
+    const pct  = axe.items.length ? Math.round((done/axe.items.length)*100) : 0;
+    return `<div class="axe-card">
+      <div class="axe-header"><div class="axe-title">${axe.titre}</div><div class="axe-pct">${pct}%</div></div>
       <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-      <ul class="axe-items">
-        ${axe.items.map((it, ii) => `
-          <li class="axe-item ${it.done?'done':''} ${isEditor()?'editable':''}"
-              ${isEditor() ? `onclick="toggleAxeItem(${ai},${ii})"` : ''}>
-            ${it.label}
-          </li>`).join('')}
-      </ul>
-    </div>`;
+      <ul class="axe-items">${axe.items.map((it,ii)=>`
+        <li class="axe-item ${it.done?'done':''} ${isEditor()?'editable':''}"
+            ${isEditor()?`onclick="toggleAxeItem(${ai},${ii})"`:''}>${it.label}</li>`).join('')}
+      </ul></div>`;
   }).join('');
 }
 
-function toggleAxeItem(ai, ii) {
-  if (!isEditor()) return;
+function toggleAxeItem(ai,ii) {
   data.axes[ai].items[ii].done = !data.axes[ai].items[ii].done;
   saveData(); renderAxes();
 }
 
+// ── Pipeline with drag & drop ────────────────────────────────────────────────
 function renderPipeline() {
   const cols = [
-    { key:'prospect', label:'Prospects' }, { key:'contacte', label:'Contactés' },
-    { key:'formation', label:'En formation' }, { key:'actif', label:'Actifs' },
+    {key:'prospect',label:'Prospects'},{key:'contacte',label:'Contactés'},
+    {key:'formation',label:'En formation'},{key:'actif',label:'Actifs'},
   ];
   document.getElementById('pipeline-board').innerHTML = cols.map(col => {
-    const bvs = data.benevoles.filter(b => b.statut === col.key);
-    return `
-    <div class="pipeline-col">
+    const bvs = data.benevoles.filter(b=>b.statut===col.key);
+    return `<div class="pipeline-col" data-col="${col.key}"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="dropBenevole(event,'${col.key}')">
       <div class="pipeline-col-header">${col.label} <span class="col-count">${bvs.length}</span></div>
-      ${bvs.map(b => `
-        <div class="pipeline-card" ${isEditor()?`onclick="advanceBenevole(${b.id})"`:''}
-             title="${isEditor()?'Cliquer pour avancer':b.note||''}">
+      ${bvs.map(b=>`
+        <div class="pipeline-card" draggable="${isEditor()}" data-id="${b.id}"
+             ondragstart="dragStartBenevole(event,${b.id})">
           <div class="p-name">${b.nom}</div>
           <div class="p-meta">${b.note||''}</div>
           <span class="p-tag ${profilTag[b.profil]}">${profilLabel[b.profil]}</span>
@@ -514,111 +623,218 @@ function renderPipeline() {
   }).join('');
 }
 
-function advanceBenevole(id) {
-  if (!isEditor()) return;
-  const order = ['prospect','contacte','formation','actif'];
-  const b = data.benevoles.find(x => x.id === id);
-  if (!b) return;
-  const idx = order.indexOf(b.statut);
-  if (idx < order.length - 1) { b.statut = order[idx+1]; saveData(); render(); }
+function dragStartBenevole(e, id) {
+  dragSrcId = id; dragSrcType = 'benevole';
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(()=>e.target.classList.add('dragging'),0);
 }
 
+function dropBenevole(e, newStatut) {
+  e.preventDefault();
+  document.querySelectorAll('.pipeline-col').forEach(c=>c.classList.remove('drag-over'));
+  document.querySelectorAll('.pipeline-card').forEach(c=>c.classList.remove('dragging'));
+  if (dragSrcType !== 'benevole') return;
+  const b = data.benevoles.find(x=>x.id===dragSrcId);
+  if (b && b.statut !== newStatut) { b.statut = newStatut; saveData(); renderPipeline(); }
+}
+
+// ── Formation ────────────────────────────────────────────────────────────────
 const modules = [
-  { nom:'Socle commun', badge:'Obligatoire', desc:'Protocole maraude, posture d\'écoute, limites du rôle, sécurité du bénévole, chaîne de secours.', duree:'2h' },
-  { nom:'Premiers secours & bobologie', badge:'PSC1 min.', desc:'Révision PSC1, bobologie pratique : plaies, ampoules, hypothermie, déshydratation.', duree:'3h' },
-  { nom:'Orientation & ressources', badge:'Terrain', desc:'Cartographie locale : 115, SAMU social, PASS, addictologie, hébergement. Rôle de l\'orienteur.', duree:'1h30' },
-  { nom:'Situations complexes', badge:'Avancé', desc:'États psychiatriques, ivresse, agressivité : posture juste, désescalade, appel aux secours.', duree:'2h' },
+  {nom:'Socle commun',badge:'Obligatoire',desc:"Protocole maraude, posture d'écoute, limites du rôle, sécurité du bénévole.",duree:'2h'},
+  {nom:'Premiers secours & bobologie',badge:'PSC1 min.',desc:'Révision PSC1, plaies, ampoules, hypothermie, déshydratation.',duree:'3h'},
+  {nom:'Orientation & ressources',badge:'Terrain',desc:'115, SAMU social, PASS, addictologie, hébergement. Rôle de l\'orienteur.',duree:'1h30'},
+  {nom:'Situations complexes',badge:'Avancé',desc:'États psychiatriques, ivresse, agressivité, désescalade.',duree:'2h'},
 ];
 function renderFormation() {
-  document.getElementById('formation-grid').innerHTML = modules.map(m => `
+  document.getElementById('formation-grid').innerHTML = modules.map(m=>`
     <div class="module-card">
       <div class="module-header"><div class="module-name">${m.nom}</div><span class="module-badge">${m.badge}</span></div>
       <div class="module-desc">${m.desc}</div>
-      <div style="font-size:11px;color:var(--muted)">Durée estimée : ${m.duree}</div>
+      <div style="font-size:11px;color:var(--muted)">Durée : ${m.duree}</div>
     </div>`).join('');
 }
 
+// ── Partenaires ───────────────────────────────────────────────────────────────
 function renderPartenaires() {
-  const sC = { actif:'status-actif', nego:'status-nego', prospect:'status-prospect' };
-  const sL = { actif:'Actif', nego:'En négociation', prospect:'Prospect' };
-  const tL = { alimentaire:'Distribution alimentaire', hebergement:'Hébergement', sante:'Santé', sociale:'Action sociale', autre:'Autre' };
-  document.getElementById('partners-grid').innerHTML = data.partenaires.map(p => `
+  const sC={actif:'status-actif',nego:'status-nego',prospect:'status-prospect'};
+  const sL={actif:'Actif',nego:'En négociation',prospect:'Prospect'};
+  const tL={alimentaire:'Distribution alimentaire',hebergement:'Hébergement',sante:'Santé',sociale:'Action sociale',autre:'Autre'};
+  document.getElementById('partners-grid').innerHTML = (data.partenaires||[]).map(p=>`
     <div class="partner-card">
       <div class="partner-name">${p.nom}</div>
       <div class="partner-type">${tL[p.type]||p.type}</div>
       <div class="partner-detail"><strong>Contact :</strong> ${p.contact}</div>
       <div class="partner-detail"><strong>Accueil :</strong> ${p.freq}</div>
       <span class="partner-status ${sC[p.statut]}">${sL[p.statut]}</span>
-    </div>`).join('');
+    </div>`).join('') || '<div style="color:var(--muted);font-size:13px;padding:1rem">Aucun partenaire enregistré.</div>';
 }
 
+// ── Actions with drag & drop ─────────────────────────────────────────────────
 function renderActions() {
-  const sorted = [...data.actions].sort((a,b) => {
-    if (a.done !== b.done) return a.done?1:-1;
-    return ({high:0,med:1,low:2})[a.prio] - ({high:0,med:1,low:2})[b.prio];
+  const sorted = [...(data.actions||[])].sort((a,b)=>{
+    if(a.done!==b.done) return a.done?1:-1;
+    return ({high:0,med:1,low:2})[a.prio]-({high:0,med:1,low:2})[b.prio];
   });
-  document.getElementById('actions-list').innerHTML = sorted.map(a => `
-    <div class="action-row ${isEditor()?'editable':''}" ${isEditor()?`onclick="toggleAction(${a.id})"`:''}">
-      <div class="action-check ${a.done?'done':''}"></div>
+  document.getElementById('actions-list').innerHTML = sorted.map(a=>`
+    <div class="action-row ${isEditor()?'draggable':''}" data-id="${a.id}"
+         draggable="${isEditor()}"
+         ondragstart="dragStartItem(event,${a.id},'action')"
+         ondragover="event.preventDefault();this.classList.add('drag-over')"
+         ondragleave="this.classList.remove('drag-over')"
+         ondrop="dropAction(event,${a.id})">
+      ${isEditor()?'<span class="drag-handle">⠿</span>':''}
+      <div class="action-check ${a.done?'done':''}" ${isEditor()?`onclick="toggleAction(${a.id})"`:''}></div>
       <div class="action-text ${a.done?'done':''}">${a.text}</div>
       <span class="priority ${prioClass[a.prio]}">${prioLabel[a.prio]}</span>
       <div class="action-meta">${a.axe}</div>
-    </div>`).join('');
+    </div>`).join('') || '<div style="color:var(--muted);font-size:13px;padding:1rem">Aucune action enregistrée.</div>';
 }
 
-// ── Modals ───────────────────────────────────────────────────────────────────
+function toggleAction(id) {
+  const a = data.actions.find(x=>x.id===id);
+  if(a){ a.done=!a.done; saveData(); renderActions(); }
+}
+
+function dragStartItem(e, id, type) {
+  dragSrcId=id; dragSrcType=type;
+  e.dataTransfer.effectAllowed='move';
+  setTimeout(()=>e.currentTarget.classList.add('dragging'),0);
+}
+
+function dropAction(e, targetId) {
+  e.preventDefault();
+  document.querySelectorAll('.action-row').forEach(r=>r.classList.remove('drag-over','dragging'));
+  if(dragSrcType!=='action'||dragSrcId===targetId) return;
+  const arr = data.actions;
+  const fromIdx = arr.findIndex(x=>x.id===dragSrcId);
+  const toIdx   = arr.findIndex(x=>x.id===targetId);
+  if(fromIdx<0||toIdx<0) return;
+  const [item] = arr.splice(fromIdx,1);
+  arr.splice(toIdx,0,item);
+  saveData(); renderActions();
+}
+
+// ── Notes de frais with drag & drop ──────────────────────────────────────────
+function renderFrais() {
+  const frais = data.frais||[];
+  const total = frais.reduce((s,f)=>s+parseFloat(f.montant||0),0);
+  document.getElementById('frais-total').textContent =
+    frais.length ? `Total : ${total.toFixed(2)} €` : '';
+
+  const stC = {attente:'st-attente',valide:'st-valide',rembourse:'st-rembourse'};
+  const stL = {attente:'En attente',valide:'Validé',rembourse:'Remboursé'};
+
+  document.getElementById('frais-list').innerHTML = frais.map(f=>`
+    <div class="frais-row" data-id="${f.id}"
+         draggable="${isEditor()}"
+         ondragstart="dragStartItem(event,${f.id},'frais')"
+         ondragover="event.preventDefault();this.classList.add('drag-over')"
+         ondragleave="this.classList.remove('drag-over')"
+         ondrop="dropFrais(event,${f.id})">
+      <div class="frais-date">${f.date||'—'}</div>
+      <div class="frais-desc">${f.desc}${f.nom?`<div style="font-size:11px;color:var(--muted)">${f.nom}</div>`:''}</div>
+      <div class="frais-cat"><span style="font-size:11px;color:var(--muted)">${f.cat}</span></div>
+      <div class="frais-montant">${parseFloat(f.montant||0).toFixed(2)} €</div>
+      <div class="frais-statut"><span class="${stC[f.statut]}">${stL[f.statut]}</span></div>
+      <div>${isEditor()?`<button class="del-btn" onclick="deleteFrais(${f.id})">✕</button>`:''}</div>
+    </div>`).join('') || '<div style="color:var(--muted);font-size:13px;padding:1rem 1.25rem">Aucune note de frais.</div>';
+}
+
+function dropFrais(e, targetId) {
+  e.preventDefault();
+  document.querySelectorAll('.frais-row').forEach(r=>r.classList.remove('drag-over','dragging'));
+  if(dragSrcType!=='frais'||dragSrcId===targetId) return;
+  const arr = data.frais;
+  const fromIdx = arr.findIndex(x=>x.id===dragSrcId);
+  const toIdx   = arr.findIndex(x=>x.id===targetId);
+  if(fromIdx<0||toIdx<0) return;
+  const [item] = arr.splice(fromIdx,1);
+  arr.splice(toIdx,0,item);
+  saveData(); renderFrais();
+}
+
+function deleteFrais(id) {
+  data.frais = data.frais.filter(f=>f.id!==id);
+  saveData(); renderFrais(); renderStats();
+}
+
+// ── Comptes ───────────────────────────────────────────────────────────────────
+function renderComptes() {
+  const stL={preparation:'En préparation',valide:'Validé en AG',depose:'Déposé en préfecture'};
+  const stC={preparation:'st-attente',valide:'st-valide',depose:'st-rembourse'};
+  document.getElementById('comptes-grid').innerHTML = (data.comptes||[]).map(c=>{
+    const result = (parseFloat(c.produits||0)-parseFloat(c.charges||0));
+    return `<div class="compte-card">
+      <div class="compte-exercice">Exercice ${c.exercice}</div>
+      <div class="compte-label">Clôture : ${c.date||'—'}</div>
+      <div class="compte-montant">${parseFloat(c.treso||0).toFixed(2)} €</div>
+      <div class="compte-detail"><strong>Produits :</strong> ${parseFloat(c.produits||0).toFixed(2)} €</div>
+      <div class="compte-detail"><strong>Charges :</strong> ${parseFloat(c.charges||0).toFixed(2)} €</div>
+      <div class="compte-detail"><strong>Résultat :</strong> <span style="color:${result>=0?'var(--green)':'var(--red)'}">${result>=0?'+':''}${result.toFixed(2)} €</span></div>
+      <div style="margin-top:.75rem"><span class="partner-status ${stC[c.statut]}">${stL[c.statut]}</span></div>
+    </div>`;
+  }).join('') || '<div style="color:var(--muted);font-size:13px">Aucun exercice enregistré.</div>';
+}
+
+// ── Modals ────────────────────────────────────────────────────────────────────
 function openModal(t)  { document.getElementById('modal-'+t).classList.add('open'); }
 function closeModal(t) { document.getElementById('modal-'+t).classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o) o.classList.remove('open'); }));
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 
 function saveBenevole() {
-  const nom = document.getElementById('b-nom').value.trim();
-  if (!nom) return;
-  data.benevoles.push({ id:Date.now(), nom, profil:document.getElementById('b-profil').value,
-    statut:document.getElementById('b-statut').value, note:document.getElementById('b-note').value });
+  const nom = document.getElementById('b-nom').value.trim(); if(!nom) return;
+  data.benevoles.push({id:Date.now(),nom,profil:document.getElementById('b-profil').value,
+    statut:document.getElementById('b-statut').value,note:document.getElementById('b-note').value});
   saveData(); closeModal('benevole'); render();
-  ['b-nom','b-note'].forEach(id => document.getElementById(id).value='');
+  ['b-nom','b-note'].forEach(id=>document.getElementById(id).value='');
 }
 
 function savePartenaire() {
-  const nom = document.getElementById('p-nom').value.trim();
-  if (!nom) return;
-  data.partenaires.push({ id:Date.now(), nom, type:document.getElementById('p-type').value,
-    contact:document.getElementById('p-contact').value, freq:document.getElementById('p-freq').value,
-    statut:document.getElementById('p-statut').value });
+  const nom = document.getElementById('p-nom').value.trim(); if(!nom) return;
+  data.partenaires.push({id:Date.now(),nom,type:document.getElementById('p-type').value,
+    contact:document.getElementById('p-contact').value,freq:document.getElementById('p-freq').value,
+    statut:document.getElementById('p-statut').value});
   saveData(); closeModal('partenaire'); render();
-  ['p-nom','p-contact','p-freq'].forEach(id => document.getElementById(id).value='');
+  ['p-nom','p-contact','p-freq'].forEach(id=>document.getElementById(id).value='');
 }
 
 function saveAction() {
-  const text = document.getElementById('a-text').value.trim();
-  if (!text) return;
-  data.actions.push({ id:Date.now(), text, prio:document.getElementById('a-prio').value,
-    axe:document.getElementById('a-axe').value, done:false });
+  const text = document.getElementById('a-text').value.trim(); if(!text) return;
+  data.actions.push({id:Date.now(),text,prio:document.getElementById('a-prio').value,
+    axe:document.getElementById('a-axe').value,done:false});
   saveData(); closeModal('action'); render();
   document.getElementById('a-text').value='';
 }
 
-function toggleAction(id) {
-  if (!isEditor()) return;
-  const a = data.actions.find(x => x.id===id);
-  if (a) { a.done=!a.done; saveData(); renderActions(); }
+function saveFrais() {
+  const desc = document.getElementById('f-desc').value.trim(); if(!desc) return;
+  if(!data.frais) data.frais=[];
+  data.frais.push({id:Date.now(),desc,date:document.getElementById('f-date').value,
+    montant:document.getElementById('f-montant').value,cat:document.getElementById('f-cat').value,
+    statut:document.getElementById('f-statut').value,nom:document.getElementById('f-nom').value});
+  saveData(); closeModal('frais'); render();
+  ['f-desc','f-date','f-montant','f-nom'].forEach(id=>document.getElementById(id).value='');
+}
+
+function saveCompte() {
+  if(!data.comptes) data.comptes=[];
+  data.comptes.push({id:Date.now(),exercice:document.getElementById('c-exercice').value,
+    date:document.getElementById('c-date').value,produits:document.getElementById('c-produits').value,
+    charges:document.getElementById('c-charges').value,treso:document.getElementById('c-treso').value,
+    statut:document.getElementById('c-statut').value});
+  saveData(); closeModal('compte'); render();
+  ['c-exercice','c-date','c-produits','c-charges','c-treso'].forEach(id=>document.getElementById(id).value='');
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
-function toast(msg, err=false) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'show' + (err?' error':'');
-  setTimeout(() => el.className='', 2500);
+function toast(msg,err=false) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='show'+(err?' error':'');
+  setTimeout(()=>el.className='',2500);
 }
 
-// ── Init ─────────────────────────────────────────────────────────────────────
-(async () => {
-  updateAuthUI();
-  await loadData();
-  render();
-})();
+// ── Init ──────────────────────────────────────────────────────────────────────
+(async()=>{ updateAuthUI(); await loadData(); render(); })();
 </script>
 </body>
 </html>
