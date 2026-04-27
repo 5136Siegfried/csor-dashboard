@@ -3,7 +3,7 @@
 > Outil de pilotage stratégique pour une association de maraude sanitaire —
 > recrutement bénévoles, suivi de formation, gestion des partenariats.
 
-[![CI/CD](https://github.com/TON_ORG/maraude/actions/workflows/deploy.yml/badge.svg)](https://github.com/TON_ORG/maraude/actions/workflows/deploy.yml)
+[![CI/CD](https://github.com/5136Siegfried/csor-dashboard/actions/workflows/deploy.yml/badge.svg)](https://github.com/5136Siegfried/csor-dashboard/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
