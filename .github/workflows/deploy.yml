@@ -10,10 +10,6 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: 5136siegfried/csor-dashboard
 
-# ─────────────────────────────────────────────────────────────────────────────
-# JOB 1 — Lint
-# Toujours exécuté : PR et push
-# ─────────────────────────────────────────────────────────────────────────────
 jobs:
   lint:
     name: Lint
@@ -31,10 +27,6 @@ jobs:
       - name: Vérification syntaxe
         run: node --check server.js
 
-# ─────────────────────────────────────────────────────────────────────────────
-# JOB 2 — Build & push image Docker
-# Exécuté sur lint success ; push uniquement sur push (pas PR)
-# ─────────────────────────────────────────────────────────────────────────────
   build:
     name: Build image
     needs: lint
@@ -77,10 +69,6 @@ jobs:
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           cache-to: type=inline
 
-# ─────────────────────────────────────────────────────────────────────────────
-# JOB 3a — Deploy sandbox
-# Déclenché uniquement sur push dans la branche sandbox
-# ─────────────────────────────────────────────────────────────────────────────
   deploy-sandbox:
     name: Deploy › sandbox
     needs: build
@@ -109,36 +97,25 @@ jobs:
           script: |
             set -e
             cd /opt/maraude-sandbox
-
-            # Sandbox : pas de JWT_SECRET ni EDITOR_PASSWORD
-            # AUTH_DISABLED=true désactive la vérification dans server.js
-            cat > .env <<EOF
-            GITHUB_REPOSITORY=${{ github.repository }}
+            cat > .env <<ENVEOF
             PORT=3001
             AUTH_DISABLED=true
-            EOF
-
+            ENVEOF
             echo "${{ secrets.GITHUB_TOKEN }}" | \
               docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
             docker compose -f docker-compose.sandbox.yml pull
             docker compose -f docker-compose.sandbox.yml up -d --remove-orphans
-
             sleep 5
             curl -sf http://localhost:3001/health \
-              && echo "✓ Sandbox déployée — https://demo.maraude.5136.fr — $(date)" \
-              || (echo "✗ Healthcheck sandbox échoué" && exit 1)
+              && echo "Sandbox deployee — https://demo.maraude.5136.fr — $(date)" \
+              || (echo "Healthcheck sandbox echoue" && exit 1)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# JOB 3b — Deploy production
-# Déclenché uniquement sur push dans main
-# ─────────────────────────────────────────────────────────────────────────────
   deploy-prod:
     name: Deploy › production
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    environment: production        # protection de branche + approbation possible
+    environment: production
 
     steps:
       - uses: actions/checkout@v4
@@ -161,21 +138,16 @@ jobs:
           script: |
             set -e
             cd /opt/maraude-prod
-
-            cat > .env <<EOF
-            GITHUB_REPOSITORY=${{ github.repository }}
+            cat > .env <<ENVEOF
             PORT=3000
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             EDITOR_PASSWORD=${{ secrets.EDITOR_PASSWORD }}
-            EOF
-
+            ENVEOF
             echo "${{ secrets.GITHUB_TOKEN }}" | \
               docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
-
             sleep 5
             curl -sf http://localhost:3000/health \
-              && echo "✓ Production déployée — https://maraude.5136.fr — $(date)" \
-              || (echo "✗ Healthcheck prod échoué" && exit 1)
+              && echo "Production deployee — https://maraude.5136.fr — $(date)" \
+              || (echo "Healthcheck prod echoue" && exit 1)
