@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/${GITHUB_REPOSITORY:-5136Siegfried/maraude}:sandbox
+    image: ghcr.io/${GITHUB_REPOSITORY:-5136siegfried/csor-dashboardgit }:sandbox
     container_name: maraude-sandbox
     restart: unless-stopped
     ports:
